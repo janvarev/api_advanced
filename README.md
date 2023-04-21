@@ -30,7 +30,7 @@ API uses settings from oobaboog/google_translate plugin, so setup it first.
 
 Call API (from user language to English):
 ```python
-response = requests.post(f"http://{server}:4999/api/v1/translate-to-en", json={
+response = requests.post(f"http://{server}:5000/api/v1/translate-to-en", json={
     "prompt": prompt,
 }).json()
 ```
@@ -41,7 +41,7 @@ result:
 
 Call API (from English to user language):
 ```python
-response = requests.post(f"http://{server}:4999/api/v1/translate-from-en", json={
+response = requests.post(f"http://{server}:5000/api/v1/translate-from-en", json={
     "prompt": prompt,
 }).json()
 ```
