@@ -6,7 +6,7 @@ from modules import shared
 from modules.text_generation import encode, generate_reply
 
 params = {
-    'port': 4999,
+    'port': 5000,
     'default_stopping_strings': [],
     #'default_stopping_strings': ["\n"],
     'is_advanced_translation': True,

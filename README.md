@@ -22,7 +22,7 @@ This plugin
 3. Run oobabooga bat with params: `--extensions google_translate api_advanced` and NO --chat or --cai-chat!
 
 To connect to this point use
-`http://localhost:4999/api`
+`http://localhost:5000/api` (this can't run together with classic api extension by default)
 
 ## Additional API for text translations
 
