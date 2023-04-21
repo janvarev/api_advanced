@@ -7,8 +7,14 @@ from modules.text_generation import encode, generate_reply
 
 params = {
     'port': 4999,
+    'default_stopping_strings': [],
+    #'default_stopping_strings': ["\n"],
+    'is_advanced_translation': True,
+
 }
 
+cache_en_translation:dict[str,str] = {"":"","<START>":"<START>"}
+#en_not_translate:dict[str,str] = {}
 
 class Handler(BaseHTTPRequestHandler):
     def do_GET(self):
@@ -33,7 +39,35 @@ class Handler(BaseHTTPRequestHandler):
             self.end_headers()
 
             prompt = body['prompt']
-            prompt_lines = [k.strip() for k in prompt.split('\n')]
+            prompt_lines_orig = [k.strip() for k in prompt.split('\n')]
+            import copy
+            prompt_lines = copy.deepcopy(prompt_lines_orig)
+
+
+            # running advanced translation logic
+            if params["is_advanced_translation"]:
+                from extensions.google_translate import script
+                script.params["is_translate_user"] = True # we need proc to English
+
+                stat_miss = 0
+                for i in range(len(prompt_lines)):
+                    if cache_en_translation.get(prompt_lines[i]) is not None:
+                        print("CACHE en_translation hit:",prompt_lines[i])
+                        prompt_lines[i] = cache_en_translation.get(prompt_lines[i])
+                    else:
+                        print("CACHE en_translation MISS!:", prompt_lines_orig[i])
+                        stat_miss += 1
+                        res = script.input_modifier(prompt_lines_orig[i])
+                        cache_en_translation[prompt_lines_orig[i]] = res
+                        prompt_lines[i] = res
+
+                script.params["is_translate_user"] = False  # not needed English processing further
+                print("------ CACHE STAT: MISSES {0}/{1} (lower - better, ideally - 1)".format(stat_miss,len(prompt_lines)))
+
+
+
+
+
             max_context = body.get('max_context_length', 2048)
             while len(prompt_lines) >= 0 and len(encode('\n'.join(prompt_lines))) > max_context:
                 prompt_lines.pop(0)
@@ -60,16 +94,53 @@ class Handler(BaseHTTPRequestHandler):
                 'ban_eos_token': bool(body.get('ban_eos_token', False)),
                 'skip_special_tokens': bool(body.get('skip_special_tokens', True)),
                 'custom_stopping_strings': '',  # leave this blank
-                'stopping_strings': body.get('stopping_strings', []),
+                'stopping_strings': body.get('stopping_strings', params["default_stopping_strings"]),
             }
             stopping_strings = generate_params.pop('stopping_strings')
-            generator = generate_reply(prompt, generate_params, stopping_strings=stopping_strings)
+            if not params["is_advanced_translation"]:
+                generator = generate_reply(prompt, generate_params, stopping_strings=stopping_strings)
+            else:
+                # advanced logic
+                script.params["is_translate_user"] = False  # we don't need proc to English
+                script.params["is_translate_system"] = False  # we don't need proc back
+                generator = generate_reply(prompt, generate_params, stopping_strings=stopping_strings)
+
+
             answer = ''
             for a in generator:
                 if isinstance(a, str):
                     answer = a
                 else:
                     answer = a[0]
+
+            # seems we need it here....
+            answer = answer[len(prompt):]
+
+            if params["is_advanced_translation"]:
+                print("is_advanced_translation original answer:", answer )
+                answer_lines_orig = [k.strip() for k in answer.split('\n')]
+                answer_lines = copy.deepcopy(answer_lines_orig)
+                script.params["is_translate_system"] = True  # we need translate back
+                for i in range(len(answer_lines)):
+                    res = script.output_modifier(answer_lines_orig[i])
+                    cache_en_translation[res] = answer_lines_orig[i]
+                    answer_lines[i] = res
+
+                # special case - mixing two end phrases together
+
+                # example: prompt end: Aqua:
+                # result end: Hi!
+                # so we need cache for phrase "Aqua: Hi!"
+
+                complex_phrase1_user = prompt_lines_orig[len(prompt_lines_orig)-1]+" "+answer_lines[0]
+                complex_phrase1_user2 = prompt_lines_orig[len(prompt_lines_orig) - 1] + answer_lines[0]
+                complex_phrase1_en = prompt_lines[len(prompt_lines_orig)-1]+" "+answer_lines_orig[0]
+                cache_en_translation[complex_phrase1_user] = complex_phrase1_en
+                cache_en_translation[complex_phrase1_user2] = complex_phrase1_en
+
+                answer = "\n".join(answer_lines)
+
+                print("is_advanced_translation final answer:", answer)
 
             response = json.dumps({
                 'results': [{
