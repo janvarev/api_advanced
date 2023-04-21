@@ -5,6 +5,9 @@ from threading import Thread
 from modules import shared
 from modules.text_generation import encode, generate_reply
 
+path_settings_json =  "extensions/api_advanced/settings.json"
+path_cache_en_json =  "extensions/api_advanced/cache_en.json"
+
 params = {
     'port': 5000,
     'default_stopping_strings': [],
@@ -142,6 +145,8 @@ class Handler(BaseHTTPRequestHandler):
 
                 print("is_advanced_translation final answer:", answer)
 
+                save_cache_en()
+
             response = json.dumps({
                 'results': [{
                     'text': answer
@@ -206,4 +211,55 @@ def run_server():
 
 
 def setup():
+    load_settings()
+    load_cache_en()
+    print("Loaded Cache_en length: {0}".format(len(cache_en_translation)))
     Thread(target=run_server, daemon=True).start()
+
+
+# settings etc
+def save_settings():
+    global params
+
+
+    with open(path_settings_json, 'w') as f:
+        json.dump(params, f, indent=2)
+
+def save_cache_en():
+    global cache_en_translation
+
+    with open(path_cache_en_json, 'w', encoding="utf-8") as f:
+        json.dump(cache_en_translation, f, indent=2)
+
+def load_settings():
+    global params
+
+    try:
+        with open(path_settings_json, 'r') as f:
+            # Load the JSON data from the file into a Python dictionary
+            data = json.load(f)
+
+        if data:
+            params = {**params, **data} # mix them, this allow to add new params seamlessly
+
+    except FileNotFoundError:
+        #memory_settings = {"position": "Before Context"}
+        save_settings()
+        pass
+
+def load_cache_en():
+    global cache_en_translation
+
+    try:
+        with open(path_cache_en_json, 'r') as f:
+            # Load the JSON data from the file into a Python dictionary
+            data = json.load(f)
+
+        if data:
+            cache_en_translation = {**cache_en_translation, **data} # mix them, this allow to add new params seamlessly
+
+    except FileNotFoundError:
+        #memory_settings = {"position": "Before Context"}
+        pass
+
+
