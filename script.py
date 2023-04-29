@@ -153,30 +153,31 @@ class Handler(BaseHTTPRequestHandler):
                 }]
             })
             self.wfile.write(response.encode('utf-8'))
-        elif self.path == '/api/v1/translate-to-en':
-            # Not compatible with KoboldAI api
-            from extensions.multi_translate import script
-
-            self.send_response(200)
-            self.send_header('Content-Type', 'application/json')
-            self.end_headers()
-
-            response = json.dumps({
-                'result': script.input_modifier(body['prompt'])
-            })
-            self.wfile.write(response.encode('utf-8'))
-        elif self.path == '/api/v1/translate-from-en':
-            # Not compatible with KoboldAI api
-            from extensions.multi_translate import script
-
-            self.send_response(200)
-            self.send_header('Content-Type', 'application/json')
-            self.end_headers()
-
-            response = json.dumps({
-                'result': script.output_modifier(body['prompt'])
-            })
-            self.wfile.write(response.encode('utf-8'))
+        # deprecated API for translation
+        # elif self.path == '/api/v1/translate-to-en':
+        #     # Not compatible with KoboldAI api
+        #     from extensions.multi_translate import script
+        #
+        #     self.send_response(200)
+        #     self.send_header('Content-Type', 'application/json')
+        #     self.end_headers()
+        #
+        #     response = json.dumps({
+        #         'result': script.input_modifier(body['prompt'])
+        #     })
+        #     self.wfile.write(response.encode('utf-8'))
+        # elif self.path == '/api/v1/translate-from-en':
+        #     # Not compatible with KoboldAI api
+        #     from extensions.multi_translate import script
+        #
+        #     self.send_response(200)
+        #     self.send_header('Content-Type', 'application/json')
+        #     self.end_headers()
+        #
+        #     response = json.dumps({
+        #         'result': script.output_modifier(body['prompt'])
+        #     })
+        #     self.wfile.write(response.encode('utf-8'))
 
         elif self.path == '/api/v1/token-count':
             # Not compatible with KoboldAI api

@@ -9,11 +9,7 @@ This plugin
       - Due to advanced logic script splits income prompt by lines, and cache translation results
       - **Text quality feature:** when it generate English response, it cache it too (so you don't do double-translation English->UserLang->English next time) 
 3. **Provide additional interfaces for text translations** (from and to English language).
-    - This allows AI clients to follow this pipeline
-      - Translate user prompt to English language
-      - Process it with text gen
-      - Translate result back from English to user language
-    - ... because chatting on English is more stable and usually produce better results 
+    - _deprecated_, use https://github.com/janvarev/OneRingTranslator instead
 
 ## How to run this plugin
 
@@ -24,28 +20,3 @@ This plugin
 To connect to this point use
 `http://localhost:5000/api` (this can't run together with classic api extension by default)
 
-## Additional API for text translations
-
-API uses settings from multi_translate plugin, so setup it first.
-
-Call API (from user language to English):
-```python
-response = requests.post(f"http://{server}:5000/api/v1/translate-to-en", json={
-    "prompt": prompt,
-}).json()
-```
-result:
-```json
-{'result': 'translated text'}
-```
-
-Call API (from English to user language):
-```python
-response = requests.post(f"http://{server}:5000/api/v1/translate-from-en", json={
-    "prompt": prompt,
-}).json()
-```
-result:
-```json
-{'result': 'translated text'}
-```
