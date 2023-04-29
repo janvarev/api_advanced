@@ -3,7 +3,7 @@
 This plugin
 1. Provide Kobold-like interface (the same way as "api" classic extension)
 2. **Provide advanced logic to auto-translate income prompts:**
-    - You need to use this version of google_translate extension: https://github.com/janvarev/text-generation-webui/blob/google_translate/extensions/google_translate/script.py
+    - You need to use multi_translate extension: https://github.com/janvarev/multi_translate
     - Set up param `'is_advanced_translation': True`, (set by default)
     - ...see the details in console
       - Due to advanced logic script splits income prompt by lines, and cache translation results
@@ -19,14 +19,14 @@ This plugin
 
 1. Download it
 2. Move downloaded files to folder `extensions/api_advanced`
-3. Run oobabooga bat with params: `--extensions google_translate api_advanced` and NO --chat or --cai-chat!
+3. Run oobabooga bat with params: `--extensions multi_translate api_advanced` and NO --chat or --cai-chat!
 
 To connect to this point use
 `http://localhost:5000/api` (this can't run together with classic api extension by default)
 
 ## Additional API for text translations
 
-API uses settings from oobaboog/google_translate plugin, so setup it first.
+API uses settings from multi_translate plugin, so setup it first.
 
 Call API (from user language to English):
 ```python

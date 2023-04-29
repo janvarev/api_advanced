@@ -49,7 +49,7 @@ class Handler(BaseHTTPRequestHandler):
 
             # running advanced translation logic
             if params["is_advanced_translation"]:
-                from extensions.google_translate import script
+                from extensions.multi_translate import script
                 script.params["is_translate_user"] = True # we need proc to English
 
                 stat_miss = 0
@@ -155,7 +155,7 @@ class Handler(BaseHTTPRequestHandler):
             self.wfile.write(response.encode('utf-8'))
         elif self.path == '/api/v1/translate-to-en':
             # Not compatible with KoboldAI api
-            from extensions.google_translate import script
+            from extensions.multi_translate import script
 
             self.send_response(200)
             self.send_header('Content-Type', 'application/json')
@@ -167,7 +167,7 @@ class Handler(BaseHTTPRequestHandler):
             self.wfile.write(response.encode('utf-8'))
         elif self.path == '/api/v1/translate-from-en':
             # Not compatible with KoboldAI api
-            from extensions.google_translate import script
+            from extensions.multi_translate import script
 
             self.send_response(200)
             self.send_header('Content-Type', 'application/json')
