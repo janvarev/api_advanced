@@ -97,6 +97,7 @@ class Handler(BaseHTTPRequestHandler):
                 'ban_eos_token': bool(body.get('ban_eos_token', False)),
                 'skip_special_tokens': bool(body.get('skip_special_tokens', True)),
                 'custom_stopping_strings': '',  # leave this blank
+                'stream': False,
                 'stopping_strings': body.get('stopping_strings', params["default_stopping_strings"]),
             }
             stopping_strings = generate_params.pop('stopping_strings')
